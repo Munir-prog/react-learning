@@ -20,24 +20,30 @@ function App() {
         {id: 3, tittle: 'Audi', body: "Description"}
     ])
 
-    const [tittle, setTittle] = useState('dwda')
-    const bodyInputRef = useRef();
+    const [post, setPost] = useState({tittle: '', body: ''})
+
+    // const bodyInputRef = useRef();
     const addNewPost = (e) => {
         e.preventDefault();
-        console.log(tittle)
-        console.log(bodyInputRef.current.value)
+
+        setLanguages([...languages, {...post, id: Date.now()}]);
+        setPost({tittle: '', body: ''});
+        // e.preventDefault();
+        // console.log(tittle)
+        // console.log(bodyInputRef.current.value)
     }
     return (
         <div className="App">
             <form>
                 <MyInput
-                    value={tittle}
-                    onChange={e => setTittle(e.target.value)}
+                    value={post.tittle}
+                    onChange={e => setPost({...post, tittle: e.target.value})}
                     type="text"
                     placeholder="Название поста"
                 />
                 <MyInput
-                    ref={bodyInputRef}
+                    value={post.body}
+                    onChange={e => setPost({...post, body: e.target.value})}
                     type="text"
                     placeholder="Описание поста"/>
                 <MyButton onClick={addNewPost}>Создать пост</MyButton>
