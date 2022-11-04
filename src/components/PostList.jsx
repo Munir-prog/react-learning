@@ -8,7 +8,7 @@ const PostList = (properties) => {
                 {properties.tittle}
             </h1>
             {properties.posts.map((post, index) =>
-                <PostItem post={post} number={index + 1} key={post.id}/>
+                <PostItem remove={properties.remove} post={post} number={index + 1} key={post.id}/>
             )}
         </div>
     );
