@@ -9,33 +9,30 @@ import {useLanguages} from "./components/hooks/usePosts";
 import axios from "axios";
 import PostService from "./api/PostService";
 import Loader from "./components/UI/loader/Loader";
+import {useFetching} from "./components/hooks/useFetching";
 
 function App() {
     const [languages, setLanguages] = useState([])
 
     const [filter, setFilter] = useState({sort: '', query: ''});
     const [modal, setModal] = useState(false);
-    const [isPostsLoading, setIsPostsLoading] = useState(false);
+    const [fetchPosts, isPostLoading, postError] = useFetching(async () => {
+        const posts = await PostService.getAll();
+        setLanguages(posts);
+    })
     const sortedAndSearchedPosts = useLanguages(languages, filter.sort, filter.query);
 
     useEffect(() => {
         fetchPosts();
     }, [])
 
-    async function fetchPosts() {
-        setIsPostsLoading(true);
-        setTimeout(async () => {
-            const posts = await PostService.getAll();
-            setLanguages(posts);
-            setIsPostsLoading(false);
-        },1000)
-    }
     const createPost = (newPost) => {
         setLanguages([...languages, newPost]);
         setModal(false);
     }
 
     const removePost = (post) => {
+
         setLanguages(languages.filter(lang => lang.id !== post.id));
     };
 
@@ -47,8 +44,9 @@ function App() {
             </MyModal>
             <hr style={{margin: '15px 0'}}/>
             <PostFilter filter={filter} setFilter={setFilter}/>
+            {postError && <h1>Произошла ошибка ${postError}</h1>}
             {
-                isPostsLoading
+                isPostLoading
                     ? <div style={{marginTop: '50px',display: 'flex', justifyContent: 'center'}}>
                         <Loader/>
                       </div>
