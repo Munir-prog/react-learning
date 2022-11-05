@@ -1,15 +1,11 @@
 import React, {useMemo, useRef, useState} from 'react'
-import Counter from "./components/Counter";
-import ClassCounter from "./components/ClassCounter";
 import './styles/style.css';
-import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
-import MyInput from "./components/UI/input/MyInput";
 import PostForm from "./components/PostForm";
-import MySelect from "./components/UI/select/MySelect";
 import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/modal/MyModal";
+import {useLanguages} from "./components/hooks/usePosts";
 
 function App() {
     const [languages, setLanguages] = useState([
@@ -18,20 +14,9 @@ function App() {
         {id: 3, tittle: 'Bash', body: "Script language"}
     ])
 
-    const [filter, setFilter] = useState({sort: '', query: ''})
+    const [filter, setFilter] = useState({sort: '', query: ''});
     const [modal, setModal] = useState(false);
-
-    const sortedLanguages = useMemo(() => {
-        if (filter.sort) {
-            return [...languages].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
-        } else {
-            return languages
-        }
-    }, [filter.sort, languages])
-
-    const sortedAndSearchedPosts = useMemo(() => {
-        return sortedLanguages.filter(language => language.tittle.toLowerCase().includes(filter.query.toLowerCase()) || language.body.toLowerCase().includes(filter.query.toLowerCase()))
-    }, [filter.query, sortedLanguages])
+    const sortedAndSearchedPosts = useLanguages(languages, filter.sort, filter.query);
 
     const createPost = (newPost) => {
         setLanguages([...languages, newPost]);
