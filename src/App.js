@@ -19,6 +19,7 @@ function App() {
     ])
 
     const [filter, setFilter] = useState({sort: '', query: ''})
+    const [modal, setModal] = useState(false);
 
     const sortedLanguages = useMemo(() => {
         if (filter.sort) {
@@ -33,7 +34,8 @@ function App() {
     }, [filter.query, sortedLanguages])
 
     const createPost = (newPost) => {
-        setLanguages([...languages, newPost])
+        setLanguages([...languages, newPost]);
+        setModal(false);
     }
 
     const removePost = (post) => {
@@ -43,12 +45,16 @@ function App() {
 
     return (
         <div className="App">
-            <MyModal>
+            <MyModal visible={modal} setVisible={setModal}>
                 <PostForm create={createPost}/>
             </MyModal>
             <hr style={{margin: '15px 0'}}/>
             <PostFilter filter={filter} setFilter={setFilter}/>
             <PostList posts={sortedAndSearchedPosts} remove={removePost} tittle="Some tittle for Languages" />
+
+            <MyButton style={{marginTop: '30px'}} onClick={() => setModal(true)}>
+                Add PL
+            </MyButton>
         </div>
     );
 }
