@@ -2,6 +2,12 @@ import React from 'react';
 import PostItem from "./PostItem";
 
 const PostList = (properties) => {
+
+    if (!properties.posts.length) {
+        return (
+            <h1 style={{textAlign: 'center'}}>Список пустой!</h1>
+        )
+    }
     return (
         <div>
             <h1 style={{textAlign: 'center'}}>

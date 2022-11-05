@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useMemo, useRef, useState} from 'react'
 import Counter from "./components/Counter";
 import ClassCounter from "./components/ClassCounter";
 import './styles/style.css';
@@ -8,6 +8,8 @@ import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
+import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/modal/MyModal";
 
 function App() {
     const [languages, setLanguages] = useState([
@@ -15,14 +17,20 @@ function App() {
         {id: 2, tittle: 'Python', body: "Func language"},
         {id: 3, tittle: 'Bash', body: "Script language"}
     ])
-    //
-    // const [cars, setCars] = useState([
-    //     {id: 1, tittle: 'Mercedes', body: "Description"},
-    //     {id: 2, tittle: 'BMW', body: "Description"},
-    //     {id: 3, tittle: 'Audi', body: "Description"}
-    // ])
 
-    const [selectedSort, setSelectedSort] = useState('')
+    const [filter, setFilter] = useState({sort: '', query: ''})
+
+    const sortedLanguages = useMemo(() => {
+        if (filter.sort) {
+            return [...languages].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
+        } else {
+            return languages
+        }
+    }, [filter.sort, languages])
+
+    const sortedAndSearchedPosts = useMemo(() => {
+        return sortedLanguages.filter(language => language.tittle.toLowerCase().includes(filter.query.toLowerCase()) || language.body.toLowerCase().includes(filter.query.toLowerCase()))
+    }, [filter.query, sortedLanguages])
 
     const createPost = (newPost) => {
         setLanguages([...languages, newPost])
@@ -32,32 +40,15 @@ function App() {
         setLanguages(languages.filter(lang => lang.id !== post.id));
     };
 
-    const sortLanguages = (sort) => {
-        setSelectedSort(sort);
-        setLanguages([...languages].sort((a, b) => a[sort].localeCompare(b[sort])))
-
-    }
 
     return (
         <div className="App">
-            <PostForm create={createPost}/>
+            <MyModal>
+                <PostForm create={createPost}/>
+            </MyModal>
             <hr style={{margin: '15px 0'}}/>
-            <div>
-                <MySelect
-                    value={selectedSort}
-                    onChange={sortLanguages}
-                    defaultValue="Sort with"
-                    options={[
-                        {value: 'tittle', name: 'Sort with tittle'},
-                        {value: 'body', name: 'Sort with body'}
-                    ]}
-                />
-            </div>
-            {languages.length !== 0
-                ? <PostList posts={languages} remove={removePost} tittle="Some tittle for Languages" />
-                : <h1 style={{textAlign: 'center'}}>Список пустой!</h1>
-            }
-            {/*<PostList posts={cars} remove={removePost} tittle="Some tittle for Cars" />*/}
+            <PostFilter filter={filter} setFilter={setFilter}/>
+            <PostList posts={sortedAndSearchedPosts} remove={removePost} tittle="Some tittle for Languages" />
         </div>
     );
 }
