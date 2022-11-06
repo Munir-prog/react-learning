@@ -45,12 +45,13 @@
     height: 50px;
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 0 15px;
     background: lightgray;
 }
 
 .navbar__links {
-    width: 100%;
+    width: 50%;
     display: flex;
     justify-content: space-around;
     /*margin-left: auto;*/
