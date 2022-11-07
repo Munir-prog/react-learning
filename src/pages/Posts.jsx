@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useMemo, useRef, useState} from 'react'
 import {useLanguages} from "../components/hooks/usePosts";
 import PostService from "../api/PostService";
 import {useFetching} from "../components/hooks/useFetching";
@@ -11,6 +11,7 @@ import Loader from "../components/UI/loader/Loader";
 import PostList from "../components/PostList";
 import Pagination from "../components/UI/pagination/Pagination";
 import PostMapper from "../utils/PostMapper";
+import {useObserver} from "../components/hooks/useObserver";
 
 function Posts() {
     const [languages, setLanguages] = useState([])
@@ -21,22 +22,27 @@ function Posts() {
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
     const sortedAndSearchedPosts = useLanguages(languages, filter.sort, filter.query);
+    const lastElement = useRef();
 
 
     // let pagesArray = getPagesArray(totalPages);
 
     const [fetchPosts, isPostLoading, postError] = useFetching(async (limit, page) => {
         const response = await PostService.getAll(limit, page);
-        setLanguages(
-            response.data.map(post => PostMapper.mapServerPost(post))
+        setLanguages([...languages,
+            ...response.data.map(post => PostMapper.mapServerPost(post))]
         )
         let totalCount = response.headers['x-total-count'];
         setTotalPages(getPageCount(totalCount, limit))
     })
 
+    useObserver(lastElement, page < totalPages, isPostLoading, () => {
+        setPage(page + 1);
+    })
+
     useEffect(() => {
         fetchPosts(limit, page);
-    }, [])
+    }, [page])
 
     const createPost = (newPost) => {
         setLanguages([...languages, newPost]);
@@ -50,7 +56,6 @@ function Posts() {
 
     const changePage = (page) => {
         setPage(page);
-        fetchPosts(limit, page);
     }
 
     return (
@@ -60,6 +65,7 @@ function Posts() {
             </MyModal>
             <hr style={{margin: '15px 0'}}/>
             <PostFilter filter={filter} setFilter={setFilter}/>
+
             <MyButton style={{marginTop: '30px', marginRight: '10px'}} onClick={() => setModal(true)}>
                 Add PL
             </MyButton>
@@ -68,13 +74,15 @@ function Posts() {
                 GetPosts
             </MyButton>
             {postError && <h1>Произошла ошибка ${postError}</h1>}
+            <PostList posts={sortedAndSearchedPosts} remove={removePost} tittle="Some tittle for Languages"/>
+            <div ref={lastElement} style={{height: 20}}/>
             {
-                isPostLoading
-                    ? <div style={{marginTop: '50px', display: 'flex', justifyContent: 'center'}}>
-                        <Loader/>
-                    </div>
-                    : <PostList posts={sortedAndSearchedPosts} remove={removePost} tittle="Some tittle for Languages"/>
+                isPostLoading &&
+                <div style={{marginTop: '50px', display: 'flex', justifyContent: 'center'}}>
+                   <Loader/>
+                </div>
             }
+
             <Pagination page={page} changePage={changePage} totalPages={totalPages}/>
         </div>
     );
