@@ -12,6 +12,7 @@ import PostList from "../components/PostList";
 import Pagination from "../components/UI/pagination/Pagination";
 import PostMapper from "../utils/PostMapper";
 import {useObserver} from "../components/hooks/useObserver";
+import MySelect from "../components/UI/select/MySelect";
 
 function Posts() {
     const [languages, setLanguages] = useState([])
@@ -42,7 +43,7 @@ function Posts() {
 
     useEffect(() => {
         fetchPosts(limit, page);
-    }, [page])
+    }, [page, limit])
 
     const createPost = (newPost) => {
         setLanguages([...languages, newPost]);
@@ -65,7 +66,17 @@ function Posts() {
             </MyModal>
             <hr style={{margin: '15px 0'}}/>
             <PostFilter filter={filter} setFilter={setFilter}/>
-
+            <MySelect
+                value={limit}
+                onChange={value => setLimit(value)}
+                defaultValue={"Element quantity on page"}
+                options={[
+                    {value: 5, name: '5'},
+                    {value: 10, name: '10'},
+                    {value: 25, name: '25'},
+                    {value: -1, name: 'show all'}
+                ]}
+            />
             <MyButton style={{marginTop: '30px', marginRight: '10px'}} onClick={() => setModal(true)}>
                 Add PL
             </MyButton>
